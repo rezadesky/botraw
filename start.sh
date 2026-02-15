@@ -28,10 +28,14 @@ if [ ${#instances[@]} -eq 0 ]; then
 fi
 
 # Loop through each instance and start it in the background
+# Loop through each instance and start it in the background
 for env in "${instances[@]}"; do
     echo "Launching instance: $env"
-    # Run in background with inline env var to avoid scope issues
-    ENV_FILE="$env" python -m core.bot &
+    (
+        export ENV_FILE="$env"
+        echo "Exported ENV_FILE=$ENV_FILE"
+        python -m core.bot
+    ) &
 done
 
 # Wait for all background processes to finish (runs forever basically)
