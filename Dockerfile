@@ -20,6 +20,9 @@ COPY . .
 # Ensure database directory exists
 RUN mkdir -p database
 
+# Explicitly copy instances (including .env files)
+COPY instances /app/instances
+
 # Copy the startup script
 COPY start.sh .
 RUN chmod +x start.sh
