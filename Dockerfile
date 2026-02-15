@@ -20,6 +20,10 @@ COPY . .
 # Ensure database directory exists
 RUN mkdir -p database
 
-# Railway uses the PORT env var, but our bot is a worker (no web server)
-# Use the same command as Procfile
-CMD ["python", "-m", "core.bot"]
+# Copy the startup script
+COPY start.sh .
+RUN chmod +x start.sh
+
+# Use start.sh as the entrypoint command.
+# This script handles loading ENV_FILE or launching all instances.
+CMD ["./start.sh"]
