@@ -1,0 +1,6 @@
+highrise-bot-sdk==24.1.0
+tortoise-orm
+aiosqlite
+httpx
+loguru
+python-dotenv

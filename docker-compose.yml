@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  # Konfigurasi untuk Bot Pertama
+  bot_1:
+    build: .
+    env_file: ./instances/bot_1/.env
+    volumes:
+      - ./instances/bot_1/database:/app/database # Database terisolasi
+    restart: always
+
+  # Konfigurasi untuk Bot Kedua (Akan diaktifkan nanti)
+  # bot_2:
+  #   build: .
+  #   env_file: ./instances/bot_2/.env
+  #   volumes:
+  #     - ./instances/bot_2/database:/app/database # Database terisolasi
+  #   restart: always
