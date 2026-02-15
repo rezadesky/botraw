@@ -4,3 +4,4 @@ aiosqlite
 httpx
 loguru
 python-dotenv
+typing-extensions>=4.12.2

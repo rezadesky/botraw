@@ -1,24 +1,25 @@
-# Use an official Python runtime as a parent image
 FROM python:3.10-slim
 
-# Set the working directory to /app
 WORKDIR /app
 
-# Copy the requirements file into the container at /app/core
-COPY core/requirements.txt /app/core/requirements.txt
+# Install system dependencies if any (none needed for now)
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r core/requirements.txt
+# Copy requirements first for caching
+COPY requirements.txt .
 
-# Copy the core directory contents (code) into the container at /app/core
-COPY core /app/core
+# THE HACK: Maneuver around Highrise SDK's old typing-extensions pin
+RUN pip install --no-cache-dir tortoise-orm aiosqlite httpx loguru python-dotenv
+RUN pip install --no-cache-dir highrise-bot-sdk==24.1.0 --no-deps
+RUN pip install --no-cache-dir aiohttp cattrs click pendulum quattro
+RUN pip install --no-cache-dir typing-extensions>=4.12.2 --upgrade
 
-# Copy the rest if needed, or just core is enough if we run from there.
-# But we need models and bot.
+# Copy the rest of the application
+COPY . .
 
-# Set environment variables to ensure output buffer is flushed
-ENV PYTHONUNBUFFERED=1
+# Ensure database directory exists
+RUN mkdir -p database
 
-# Command to run the bot
-# We use shell form to allow variable expansion from environment variables provided by docker-compose
-CMD highrise core.bot:MyBot $HIGHRISE_ROOM_ID $HIGHRISE_TOKEN
+# Railway uses the PORT env var, but our bot is a worker (no web server)
+# Use the same command as Procfile
+CMD ["python", "-m", "core.bot"]
