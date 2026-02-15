@@ -264,11 +264,21 @@ class MyBot(BaseBot):
 
 if __name__ == "__main__":
     # Load environment variables
-    # If ENV_FILE is set (e.g. by run_bot_1.bat), load from there.
+    # If ENV_FILE is set (e.g. by run_bot_1.bat or start.sh), load from there.
     env_file = os.getenv("ENV_FILE")
     if env_file:
-        load_dotenv(env_file, override=True)
+        # Check if file exists to debug Railway path issues
+        if os.path.exists(env_file):
+            logger.info(f"Loading environment from: {env_file}")
+            load_dotenv(env_file, override=True)
+        else:
+            logger.error(f"ENV_FILE specified ({env_file}) but NOT FOUND!")
+            # Try to load from absolute path if relative fails?
+            # Or list dir to debug
+            logger.info(f"CWD: {os.getcwd()}")
+            logger.info(f"Content of instances: {os.listdir('instances') if os.path.exists('instances') else 'Not Found'}")
     else:
+        logger.info("No ENV_FILE set, loading default .env")
         load_dotenv(override=True)
 
     # This allows running the bot directly: python -m core.bot
