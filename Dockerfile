@@ -23,10 +23,8 @@ RUN mkdir -p database
 # Explicitly copy instances (including .env files)
 COPY instances /app/instances
 
-# Copy the startup script
-COPY start.sh .
-RUN chmod +x start.sh
+# Copy the python runner script
+COPY runner.py .
 
-# Use start.sh as the entrypoint command.
-# This script handles loading ENV_FILE or launching all instances.
-CMD ["./start.sh"]
+# Use runner.py as the entrypoint command.
+CMD ["python", "runner.py"]
