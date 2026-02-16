@@ -239,16 +239,22 @@ class MyBot(BaseBot):
                 return # Command handoff complete
                 
         # Check if message is a teleport trigger
-        from core.utils.permissions import get_user_role
-        user_role = await get_user_role(user.id, user.username)
-        
-        # Only VIP and above can use teleport triggers (saved names)
-        if user_role in ["host", "admin", "vip"]:
-            from core.commands.helptele import check_teleport_trigger
-            try:
-                 await check_teleport_trigger(self, user, msg)
-            except Exception as e:
-                 logger.error(f"Error checking teleport trigger: {e}")
+        # Check if message is a teleport trigger
+        # IMPORTANT: Wrap sensitive DB calls in robust error handling
+        try:
+            from core.utils.permissions import get_user_role
+            user_role = await get_user_role(user.id, user.username)
+            
+            # Only VIP and above can use teleport triggers (saved names)
+            if user_role in ["host", "admin", "vip"]:
+                from core.commands.helptele import check_teleport_trigger
+                await check_teleport_trigger(self, user, msg)
+        except Exception as e:
+            # If DB is not ready or context lost, just log it instead of crashing bot
+            if "TortoiseContext" in str(e):
+                logger.warning(f"DB Context lost during chat check: {e}")
+            else:
+                logger.error(f"Error checking teleport trigger: {e}")
 
         # Fallback: Check for non-command emote triggers (e.g. "maniac" or "maniac @user")
         from core.commands.helpemote import perform_emote_logic
